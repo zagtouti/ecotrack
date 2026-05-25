@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livraly · Station Bir Djir</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,300,400,500,600,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<!-- ══ NAV ══ -->
+<nav id="nav">
+  <div class="logo">
+    <img class="brandlogo" src="assets/img/livraly-logo.png" alt="Livraly">
+    <span class="brandname">Livraly</span>
+  </div>
+
+  <button class="tab on" onclick="go('dash',this)" id="tab-dash">Dashboard</button>
+  <button class="tab" onclick="go('reception',this)" id="tab-reception">
+    Réception <span class="n n-g">136</span>
+  </button>
+  <button class="tab" onclick="go('dispatch',this)" id="tab-dispatch">
+    Dispatch <span class="n n-b">105</span>
+  </button>
+  <button class="tab" onclick="go('livraison',this)" id="tab-livraison">
+    Livraison <span class="n n-p">869</span>
+  </button>
+  <button class="tab" onclick="go('retours',this)" id="tab-retours">
+    Retours <span class="n n-r">1896</span>
+  </button>
+  <button class="tab" onclick="go('livreur',this)" id="tab-livreur">
+    Livreur <span class="n n-t">8</span>
+  </button>
+  <button class="tab" onclick="go('reclamation',this)" id="tab-reclamation">
+    Réclamation <span class="n n-r">24</span>
+  </button>
+  <button class="tab" onclick="go('finance',this)" id="tab-finance">
+    Finance <span class="n n-i">3339</span>
+  </button>
+
+  <div class="nav-mid"></div>
+
+  <div class="nav-r">
+    <button class="scan-pill" id="scan-pill-btn" onclick="toggleScan()">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="3" y2="2"/><line x1="7" y1="6" x2="7" y2="2"/><line x1="11" y1="6" x2="11" y2="2"/><line x1="15" y1="6" x2="15" y2="2"/><line x1="19" y1="6" x2="19" y2="2"/><line x1="3" y1="18" x2="3" y2="22"/><line x1="7" y1="18" x2="7" y2="22"/><line x1="11" y1="18" x2="11" y2="22"/><line x1="15" y1="18" x2="15" y2="22"/><line x1="19" y1="18" x2="19" y2="22"/><rect x="1" y="6" width="22" height="12" rx="2"/></svg>
+      Scanner
+    </button>
+    <div class="srch">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input placeholder="N° tracking…" id="gsearch">
+    </div>
+    <div class="icobtn"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+    <span class="station-pill">BIR DJIR</span>
+    <button class="ava" onclick="toggleAvatarMenu()">YG</button>
+    <div class="avatar-menu" id="avatar-menu">
+      <div class="avatar-role">Super-admin</div>
+      <button onclick="openAdminSettings()">Paramètres</button>
+      <button onclick="toast('ok','Session super-admin active')">Permissions</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ SCAN DRAWER ══ -->
+<div id="scanbar">
+  <div class="scan-inner">
+    <span class="scan-lbl">Scanner</span>
+    <div class="scan-field">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="3" y2="2"/><line x1="7" y1="6" x2="7" y2="2"/><line x1="11" y1="6" x2="11" y2="2"/><rect x="1" y="6" width="22" height="12" rx="2"/></svg>
+      <input id="scan-input" placeholder="Scanner ou taper le code tracking…" onkeydown="handleScan(event)">
+    </div>
+    <div class="scan-for" id="scan-for" style="display:none">
+      <span class="scan-for-lbl">Pour :</span>
+      <span class="scan-for-val" id="scan-for-val">—</span>
+    </div>
+    <div class="scan-stats">
+      <div class="scan-stat ok"><div class="scan-stat-n" id="cnt-ok">0</div><div class="scan-stat-l">Validés</div></div>
+      <div class="scan-stat err"><div class="scan-stat-n" id="cnt-err">0</div><div class="scan-stat-l">Erreurs</div></div>
+      <div class="scan-stat tot"><div class="scan-stat-n" id="cnt-tot">0</div><div class="scan-stat-l">Total</div></div>
+    </div>
+    <button class="scan-close" onclick="closeScan()">✕ Fermer</button>
+  </div>
+</div>
+
+<!-- ══ BODY ══ -->
+<div class="body">
+
+<!-- HISTORIQUE SIDEBAR -->
+<button class="history-toggle" onclick="toggleHistory()" aria-label="Ouvrir historique">
+  <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>
+</button>
+<aside class="history-sidebar" id="history-sidebar">
+  <div class="side-head">
+    <div>
+      <div class="side-label">Historique</div>
+      <div class="side-station">Station Bir Djir</div>
+      <div class="side-role">Super-admin</div>
+    </div>
+    <button class="side-close" onclick="toggleHistory()" aria-label="Fermer">×</button>
+  </div>
+  <button class="side-link on" onclick="go('dash',document.getElementById('tab-dash'))">Vue globale</button>
+  <button class="side-link" onclick="go('reception',document.getElementById('tab-reception'))">Réceptions</button>
+  <button class="side-link" onclick="go('dispatch',document.getElementById('tab-dispatch'))">Dispatch</button>
+  <button class="side-link" onclick="go('livraison',document.getElementById('tab-livraison'))">Livraisons</button>
+  <button class="side-link" onclick="go('retours',document.getElementById('tab-retours'))">Retours</button>
+  <button class="side-link" onclick="go('livreur',document.getElementById('tab-livreur'))">Livreurs</button>
+  <button class="side-link" onclick="go('reclamation',document.getElementById('tab-reclamation'))">Réclamations</button>
+  <button class="side-link" onclick="go('finance',document.getElementById('tab-finance'))">Finance</button>
+  <div class="side-sep"></div>
+  <button class="side-link muted" onclick="toggleCaisse()">Historique caisse</button>
+  <div class="side-bottom">
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Changer le thème">
+      <span class="theme-dot"></span>
+      <span id="theme-label">Light</span>
+    </button>
+    <button class="side-link logout" onclick="toast('ok','Déconnexion')">Logout</button>
+  </div>
+</aside>
+
+<!-- LIVREUR PANEL -->
+<div id="liv-panel">
+  <div class="lp-head">
+    <div class="lp-title" id="lp-title">Livreurs</div>
+    <div class="lp-search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input placeholder="Chercher…" oninput="filterLiv(this.value)">
+    </div>
+  </div>
+  <div class="lp-list" id="lp-list"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+<!-- ════ DASHBOARD ════ -->
+<div class="view on" id="v-dash">
+  <div class="pg-head">
+    <div><div class="pg-title">Tableau de bord</div><div class="pg-sub">Mercredi 21 mai 2026 · Station Bir Djir</div></div>
+    <div class="pg-actions">
+      <button class="btn"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>Actualiser</button>
+    </div>
+  </div>
+
+  <div class="scan-hero">
+    <div>
+      <div class="scan-hero-kicker">Action prioritaire</div>
+      <div class="scan-hero-title">Scanner un colis</div>
+      <div class="scan-hero-sub">Point d'entrée unique pour réception, dispatch et livraison.</div>
+    </div>
+    <button class="btn btn-primary btn-lg" onclick="openScan(null)">
+      <svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+      Ouvrir le scan
+    </button>
+  </div>
+
+  <!-- alert strip -->
+  <div class="alert-strip">
+    <div class="alert-card red" onclick="go('livraison',document.getElementById('tab-livraison'));setF2('stop4j')">
+      <div class="alert-ico" style="background:#fee2e2"><svg viewBox="0 0 24 24" style="stroke:#dc2626"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div><div class="alert-num" style="color:#dc2626">12</div><div class="alert-lbl">Stop-desk &gt;4 jours</div></div>
+    </div>
+    <div class="alert-card yellow" onclick="go('livraison',document.getElementById('tab-livraison'));setF2('suspendus')">
+      <div class="alert-ico" style="background:#fef9c3"><svg viewBox="0 0 24 24" style="stroke:#a16207"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg></div>
+      <div><div class="alert-num" style="color:#a16207">36</div><div class="alert-lbl">Suspendus</div></div>
+    </div>
+    <div class="alert-card blue" onclick="go('livraison',document.getElementById('tab-livraison'));setF2('non-enc')">
+      <div class="alert-ico" style="background:#dbeafe"><svg viewBox="0 0 24 24" style="stroke:#1d4ed8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+      <div><div class="alert-num" style="color:#1d4ed8">534</div><div class="alert-lbl">Non encaissés</div></div>
+    </div>
+    <div class="alert-card red" onclick="go('retours',document.getElementById('tab-retours'))">
+      <div class="alert-ico" style="background:#fee2e2"><svg viewBox="0 0 24 24" style="stroke:#dc2626"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></div>
+      <div><div class="alert-num" style="color:#dc2626">485</div><div class="alert-lbl">Retours → Expéditeur</div></div>
+    </div>
+    <div class="alert-card yellow" onclick="go('reception',document.getElementById('tab-reception'))">
+      <div class="alert-ico" style="background:#dcfce7"><svg viewBox="0 0 24 24" style="stroke:#15803d"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div><div class="alert-num" style="color:#15803d">12</div><div class="alert-lbl">Colis à valider</div></div>
+    </div>
+  </div>
+
+  <!-- main stats -->
+  <div class="g5" style="margin-bottom:16px">
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#dcfce7"><svg viewBox="0 0 24 24" style="stroke:#15803d"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/></svg></div><span class="sc-delta" style="background:#dcfce7;color:#15803d">+12</span></div><div class="sc-num" style="color:#15803d">136</div><div class="sc-lbl">Réception</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#dbeafe"><svg viewBox="0 0 24 24" style="stroke:#1d4ed8"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 012 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></div></div><div class="sc-num" style="color:#1d4ed8">105</div><div class="sc-lbl">En station</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#e9f6f2"><svg viewBox="0 0 24 24" style="stroke:#08795f"><path d="M5 12H3l9-9 9 9h-2"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg></div><span class="sc-delta" style="background:#e9f6f2;color:#08795f">+89</span></div><div class="sc-num" style="color:#08795f">869</div><div class="sc-lbl">En livraison</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#fee2e2"><svg viewBox="0 0 24 24" style="stroke:#dc2626"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></div></div><div class="sc-num" style="color:#dc2626">1 896</div><div class="sc-lbl">Retours</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#ccfbf1"><svg viewBox="0 0 24 24" style="stroke:#0f766e"><polyline points="20 6 9 17 4 12"/></svg></div><span class="sc-delta" style="background:#ccfbf1;color:#0f766e">Auj.</span></div><div class="sc-num" style="color:#0f766e">719</div><div class="sc-lbl">Livrés</div></div>
+  </div>
+
+  <div class="gcol-2-1">
+    <div class="card">
+      <div class="ch"><span class="ch-title">Activité récente</span><div class="ch-right"><button class="btn btn-sm">Voir tout</button></div></div>
+      <div class="tw"><table>
+        <thead><tr><th></th><th>Tracking</th><th>Expéditeur</th><th>Destinataire</th><th>Wilaya</th><th>Statut</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#EC2045871</span><span class="tdate">20/05 13:10</span></div></td><td style="font-size:12px">Anderson-ecommerce</td><td><div class="dc"><span class="dname">Ali Meziane</span><span class="dphone">0770101010</span></div></td><td style="font-size:12px">Oran</td><td><span class="pill pill-p">En livraison</span></td><td><span style="font-size:11px;color:var(--muted)">Auj.</span></td></tr>
+          <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#EC2045866</span><span class="tdate">20/05 12:44</span></div></td><td style="font-size:12px">Fatima Hadj</td><td><div class="dc"><span class="dname">Sara Khelifi</span><span class="dphone">0661940603</span></div></td><td style="font-size:12px">Oran</td><td><span class="pill pill-g">À valider</span></td><td><span style="font-size:11px;color:var(--muted)">Auj.</span></td></tr>
+          <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#EC2045854</span><span class="tdate">19/05 23:24</span></div></td><td style="font-size:12px">Rb livraison</td><td><div class="dc"><span class="dname">Hamidi Mohammed</span><span class="dphone">0791116474</span></div></td><td style="font-size:12px">Oran</td><td><span class="pill pill-y">Suspendu</span></td><td><span style="font-size:11px;color:var(--muted)">Hier</span></td></tr>
+          <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#EC2045841</span><span class="tdate">19/05 15:59</span></div></td><td style="font-size:12px">Elegancia Dz</td><td><div class="dc"><span class="dname">Miraoui kouider</span><span class="dphone">0696062051</span></div></td><td style="font-size:12px">Médéa</td><td><span class="pill pill-t">Livré</span></td><td><span style="font-size:11px;color:var(--muted)">Hier</span></td></tr>
+          <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#EC2045830</span><span class="tdate">18/05 11:27</span></div></td><td style="font-size:12px">deco dz</td><td><div class="dc"><span class="dname">Wail</span><span class="dphone">0797374786</span></div></td><td style="font-size:12px">Constantine</td><td><span class="pill pill-r">Retour</span></td><td><span style="font-size:11px;color:var(--muted)">Hier</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="ch"><span class="ch-title">Volume · 7 jours</span></div>
+        <div class="bars">
+          <div class="bc"><div class="bf" style="height:30px;background:#dcfce7"></div><div class="bl">L</div></div>
+          <div class="bc"><div class="bf" style="height:42px;background:#dcfce7"></div><div class="bl">M</div></div>
+          <div class="bc"><div class="bf" style="height:24px;background:#dcfce7"></div><div class="bl">Me</div></div>
+          <div class="bc"><div class="bf" style="height:52px;background:#dcfce7"></div><div class="bl">J</div></div>
+          <div class="bc"><div class="bf" style="height:36px;background:#dcfce7"></div><div class="bl">V</div></div>
+          <div class="bc"><div class="bf" style="height:16px;background:#e5e7eb"></div><div class="bl">S</div></div>
+          <div class="bc"><div class="bf" style="height:62px;background:var(--accent)"></div><div class="bl">A</div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:2px 16px 12px;align-items:baseline">
+          <span style="font-size:11px;color:var(--muted)">Colis traités</span>
+          <span style="font-size:15px;font-weight:700;font-family:var(--fhead)">1 234 <span style="font-size:11px;color:var(--accent);font-weight:500">↑18%</span></span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ch-title">Répartition</span></div>
+        <div style="padding:8px 0 6px">
+          <div class="prow"><span class="plbl">Livraison</span><div class="pbar"><div class="pfill" style="width:45%;background:#08795f"></div></div><span class="pval" style="color:#08795f">869</span></div>
+          <div class="prow"><span class="plbl">Retours</span><div class="pbar"><div class="pfill" style="width:100%;background:#dc2626"></div></div><span class="pval" style="color:#dc2626">1896</span></div>
+          <div class="prow"><span class="plbl">Livrés</span><div class="pbar"><div class="pfill" style="width:38%;background:#0f766e"></div></div><span class="pval" style="color:#0f766e">719</span></div>
+          <div class="prow"><span class="plbl">Réception</span><div class="pbar"><div class="pfill" style="width:7%;background:#15803d"></div></div><span class="pval" style="color:#15803d">136</span></div>
+          <div class="prow"><span class="plbl">Suspendus</span><div class="pbar"><div class="pfill" style="width:2%;background:#a16207"></div></div><span class="pval" style="color:#a16207">36</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ RÉCEPTION ════ -->
+<div class="view" id="v-reception">
+  <div class="pg-head">
+    <div><div class="pg-title">Réception</div><div class="pg-sub">136 colis · 12 à valider</div></div>
+    <div class="pg-actions">
+      <button class="btn btn-primary btn-lg">Lancer ramassage</button>
+      <div class="action-icons">
+        <button class="icon-action" onclick="openScan(null)" title="Activer scanner"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="3" y2="2"/><line x1="7" y1="6" x2="7" y2="2"/><line x1="11" y1="6" x2="11" y2="2"/><rect x="1" y="6" width="22" height="12" rx="2"/></svg></button>
+        <button class="icon-action" title="Imprimer étiquettes"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="g3" style="margin-bottom:16px">
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#dcfce7"><svg viewBox="0 0 24 24" style="stroke:#15803d"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div></div><div class="sc-num" style="color:#15803d">57</div><div class="sc-lbl">À ramasser</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#fef9c3"><svg viewBox="0 0 24 24" style="stroke:#a16207"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/></svg></div></div><div class="sc-num" style="color:#a16207">67</div><div class="sc-lbl">En ramassage</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#dbeafe"><svg viewBox="0 0 24 24" style="stroke:#1d4ed8"><polyline points="20 6 9 17 4 12"/></svg></div><span class="sc-delta" style="background:#dbeafe;color:#1d4ed8">Urgent</span></div><div class="sc-num" style="color:#1d4ed8">12</div><div class="sc-lbl">À valider</div></div>
+  </div>
+  <div class="gcol-2-1">
+    <div class="card">
+      <div class="ch"><span class="ch-title">Colis en réception</span><div class="ch-right"><button class="btn btn-sm">Exporter</button><button class="btn btn-primary btn-sm">Valider sélection</button></div></div>
+      <div class="fbar table-filters">
+        <span class="fl">Statut</span>
+        <button class="fp on" onclick="setF(this)">Tous<span class="fc">136</span></button>
+        <button class="fp" onclick="setF(this)">À ramasser<span class="fc">57</span></button>
+        <button class="fp" onclick="setF(this)">En ramassage<span class="fc">67</span></button>
+        <button class="fp" onclick="setF(this)">À valider<span class="fc">12</span></button>
+        <div class="fsep"></div>
+        <div class="fselect">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          <span>Tous les expéditeurs</span>
+          <svg class="fselect-arr" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          <select onchange="this.previousElementSibling.previousElementSibling.textContent=this.options[this.selectedIndex].text"><option>Tous les expéditeurs</option><option>Anderson-ecommerce</option><option>boutique rihem</option><option>Expedia 31</option><option>houria</option><option>Elegancia Dz</option><option>deco dz</option></select>
+        </div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th><input type="checkbox" class="chk"></th><th>Tracking</th><th>Type</th><th>Heure</th><th>Expéditeur</th><th>Destinataire</th><th>Wilaya · Commune</th><th>Produit</th><th>COD</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td><input type="checkbox" class="chk"></td><td><span class="tid">#EC8P5U2605</span></td><td><span class="pill pill-g">Livraison</span></td><td><span class="tdate">20/05 11:24</span></td><td style="font-size:12px">boutique rihem</td><td><div class="dc"><span class="dname">Hajim B. Ali</span><span class="dphone">0794833639</span></div></td><td><div class="dc"><span style="font-size:12px;font-weight:500">Blida</span><span class="daddr">Beni Tamou</span></div></td><td style="font-size:11.5px">bed3yat</td><td class="amt amt-p">7 300 DA</td><td><span class="pill pill-y">À ramasser</span></td></tr>
+          <tr><td><input type="checkbox" class="chk"></td><td><span class="tid">#ECP6CB2605</span></td><td><span class="pill pill-b">Stop Desk</span></td><td><span class="tdate">20/05 13:07</span></td><td style="font-size:12px">Expedia 31</td><td><div class="dc"><span class="dname">Ali hadi</span><span class="dphone">0793770036</span></div></td><td><div class="dc"><span style="font-size:12px;font-weight:500">Oran</span><span class="daddr">Bir El Djir</span></div></td><td style="font-size:11.5px">Pantalon Good/4XL</td><td class="amt amt-p">2 500 DA</td><td><span class="pill pill-g">À valider</span></td></tr>
+          <tr><td><input type="checkbox" class="chk"></td><td><span class="tid">#ECLNG8260</span></td><td><span class="pill pill-g">Livraison</span></td><td><span class="tdate">20/05 16:25</span></td><td style="font-size:12px">houria</td><td><div class="dc"><span class="dname">Mohamed</span><span class="dphone">0553941361</span></div></td><td><div class="dc"><span style="font-size:12px;font-weight:500">Alger</span><span class="daddr">Alger Centre</span></div></td><td style="font-size:11.5px">—</td><td class="amt" style="color:var(--muted)">—</td><td><span class="pill pill-y">En ramassage</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ch-title" style="color:var(--danger)">Erreurs scanner</span><span style="font-size:11px;color:var(--muted)" id="err-count">0 erreur</span></div>
+      <div id="err-list"><div class="empty"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span class="empty-t">Aucune erreur</span><span class="empty-s">Les erreurs apparaîtront ici</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ DISPATCH ════ -->
+<div class="view" id="v-dispatch">
+  <div class="pg-head">
+    <div><div class="pg-title">Dispatch</div><div class="pg-sub">105 colis en station · 12 feuilles actives</div></div>
+    <div class="pg-actions">
+      <button class="btn btn-primary" onclick="openScan('Rachid Boukert')"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="3" y2="2"/><line x1="7" y1="6" x2="7" y2="2"/><rect x="1" y="6" width="22" height="12" rx="2"/></svg>Scanner → Livreur</button>
+    </div>
+  </div>
+  <div class="g4" style="margin-bottom:16px">
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#dbeafe"><svg viewBox="0 0 24 24" style="stroke:#1d4ed8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="sc-num" style="color:#1d4ed8">80</div><div class="sc-lbl">Affectation livreur</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#dcfce7"><svg viewBox="0 0 24 24" style="stroke:#15803d"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div></div><div class="sc-num" style="color:#15803d">25</div><div class="sc-lbl">Affectation stop-desk</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#ffedd5"><svg viewBox="0 0 24 24" style="stroke:#c2410c"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/></svg></div></div><div class="sc-num" style="color:#c2410c">59</div><div class="sc-lbl">En transit</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#e9f6f2"><svg viewBox="0 0 24 24" style="stroke:#08795f"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><span class="sc-delta" style="background:#dcfce7;color:#15803d">12 actives</span></div><div class="sc-num" style="color:#08795f">12</div><div class="sc-lbl">Feuilles de route</div></div>
+  </div>
+  <div class="fbar">
+    <span class="fl">Vue</span>
+    <button class="fp on" onclick="setF(this);showLiv('livreurs')">Affectation livreur<span class="fc">80</span></button>
+    <button class="fp" onclick="setF(this);showLiv('stations')">Stop-desk<span class="fc">25</span></button>
+    <div class="fsep"></div>
+    <button class="fp" onclick="setF(this);hideLiv()">À dispatcher<span class="fc">0</span></button>
+    <button class="fp" onclick="setF(this);hideLiv()">En transit<span class="fc">59</span></button>
+    <button class="fp" onclick="setF(this);hideLiv()">En traitement<span class="fc">171</span></button>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch">
+      <span class="ch-title">Feuilles de route actives</span>
+      <div class="ch-right">
+        <button class="btn btn-primary btn-sm" onclick="openScan(null)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Créer + Activer</button>
+      </div>
+    </div>
+    <div class="fdr-row"><span class="fdr-ref">#52544</span><div class="fdr-info"><div class="fdr-name">Rachid Boukert</div><div class="fdr-date">Créée 20/05 · 15:28</div></div><span class="fdr-n">12 colis</span><span class="fdr-amt">33 080 DA</span><span class="pill pill-g" style="flex-shrink:0">Active</span><div style="display:flex;gap:4px;flex-shrink:0"><button class="btn btn-sm">PDF</button><button class="btn btn-sm btn-danger btn-sm">Désactiver</button></div></div>
+    <div class="fdr-row"><span class="fdr-ref">#52402</span><div class="fdr-info"><div class="fdr-name">Maamer</div><div class="fdr-date">Créée 19/05 · 14:32</div></div><span class="fdr-n">3 colis</span><span class="fdr-amt">8 290 DA</span><span class="pill pill-g" style="flex-shrink:0">Active</span><div style="display:flex;gap:4px;flex-shrink:0"><button class="btn btn-sm">PDF</button><button class="btn btn-sm btn-danger btn-sm">Désactiver</button></div></div>
+    <div class="fdr-row"><span class="fdr-ref">#52189</span><div class="fdr-info"><div class="fdr-name">Chadli</div><div class="fdr-date">Créée 17/05 · 15:56</div></div><span class="fdr-n">4 colis</span><span class="fdr-amt">10 690 DA</span><span class="pill pill-g" style="flex-shrink:0">Active</span><div style="display:flex;gap:4px;flex-shrink:0"><button class="btn btn-sm">PDF</button><button class="btn btn-sm btn-danger btn-sm">Désactiver</button></div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ch-title">Colis en station</span><div class="ch-right"><button class="btn btn-sm">Suspendre</button><button class="btn btn-sm btn-danger">Retourner</button><button class="btn btn-sm btn-primary">Dispatcher</button></div></div>
+    <div class="tw"><table>
+      <thead><tr><th><input type="checkbox" class="chk"></th><th>Tracking</th><th>Expéditeur</th><th>Destinataire · Adresse</th><th>Produit · COD</th><th>Suivi récent</th><th>En station depuis</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#ECLNG82605</span><span class="pill pill-g" style="font-size:9px;padding:1px 5px;margin-top:2px">Livraison</span><span class="tdate">20/05 16:25</span></div></td><td style="font-size:12px">houria</td><td><div class="dc"><span class="dname">Mohamed</span><span class="dphone">0553941361</span><span class="daddr">Alger Centre</span></div></td><td><div><div style="font-size:11.5px">—</div></div></td><td><div class="sv"><div class="svi"><span class="who">pdex 48h</span> لا يرد على المكالمة<span class="ts"> 20/05 15:43</span></div></div></td><td><span class="age age-ok">Auj.</span></td><td><button class="btn btn-sm btn-primary">Affecter</button></td></tr>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#ECP6CB2605</span><span class="pill pill-b" style="font-size:9px;padding:1px 5px;margin-top:2px">Stop Desk</span><span class="tdate">19/05 12:13</span></div></td><td style="font-size:12px">Expedia 31</td><td><div class="dc"><span class="dname">Abderrazak Brikh</span><span class="dphone">0661940603</span><span class="daddr">Oran</span></div></td><td><div><div style="font-size:11.5px">Appareil massage</div><div class="amt amt-p" style="margin-top:2px;font-size:12px">5 300 DA</div></div></td><td><div class="sv"><div class="svi">wktah tl7g la command rahi 3ndha 3jour<span class="ts"> 20/05 19:35</span></div></div></td><td><span class="age age-d">52 jours</span></td><td><button class="btn btn-sm btn-primary">Affecter</button></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ════ LIVRAISON ════ -->
+<div class="view" id="v-livraison">
+  <div class="pg-head">
+    <div><div class="pg-title">Livraison</div><div class="pg-sub">869 en cours · 36 suspendus · 719 livrés</div></div>
+    <div class="pg-actions">
+      <button class="btn">Changer livreur</button>
+      <button class="btn btn-warn">Suspendre</button>
+      <button class="btn btn-danger">Retourner</button>
+      <button class="btn btn-primary">Valider livraison</button>
+    </div>
+  </div>
+  <div class="fbar" id="liv-fbar">
+    <span class="fl">État</span>
+    <button class="fp on" onclick="setF(this)" id="fp-encours">En cours<span class="fc">869</span></button>
+    <button class="fp warn" onclick="setF(this)" id="fp-suspendus">Suspendus<span class="fc">36</span></button>
+    <button class="fp danger" onclick="setF(this)" id="fp-stop4j">Stop-desk &gt;4j<span class="fc">12</span></button>
+    <button class="fp" onclick="setF(this)" id="fp-livres">Livrés<span class="fc">719</span></button>
+    <button class="fp" onclick="setF(this)" id="fp-non-enc">Non encaissés<span class="fc">534</span></button>
+    <div class="fsep"></div>
+    <span class="fl">Canal</span>
+    <button class="fp" onclick="setF(this)">Domicile<span class="fc">655</span></button>
+    <button class="fp" onclick="setF(this)">Stop-desk<span class="fc">127</span></button>
+    <button class="fp" onclick="setF(this)">Sous-traitant<span class="fc">87</span></button>
+    <div class="fsep"></div>
+    <div class="fselect">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <span>Tous les livreurs</span>
+      <svg class="fselect-arr" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      <select onchange="this.previousElementSibling.previousElementSibling.textContent=this.options[this.selectedIndex].text"><option>Tous les livreurs</option><option>Rachid Boukert</option><option>Maamer</option><option>taki</option><option>beddad mohamed</option><option>pdex 48h</option></select>
+    </div>
+  </div>
+
+  <!-- non-enc banner (shown when relevant) -->
+  <div id="enc-banner" style="display:none">
+    <div class="total-banner" style="margin-bottom:14px">
+      <div class="tb-left"><div class="tb-lbl">Total encaissements</div><div class="tb-val">3 042 751 DA</div></div>
+      <div class="tb-right">
+        <div class="tb-stat"><div class="tb-stat-n">534</div><div class="tb-stat-l">Non encaissés</div></div>
+        <div class="tb-stat"><div class="tb-stat-n">761 125</div><div class="tb-stat-l">Chez sous-traitant</div></div>
+        <div class="tb-stat"><div class="tb-stat-n">133 800</div><div class="tb-stat-l">Non versés</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ch-title" id="liv-table-title">Colis en livraison</span><div class="ch-right"><button class="btn btn-sm">Exporter</button><button class="btn btn-primary btn-sm" id="liv-primary-btn">Valider livraison</button></div></div>
+    <div class="tw"><table>
+      <thead><tr><th><input type="checkbox" class="chk"></th><th>Tracking</th><th>Expéditeur</th><th>Destinataire</th><th>Produit · COD</th><th>Livreur</th><th>Suivi</th><th>Âge</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#ECGGOX2605</span><span class="pill pill-p" style="font-size:9px;padding:1px 5px;margin-top:2px">Livraison</span><span class="tdate">20/05 13:10</span></div></td><td style="font-size:12px">Anderson-ecommerce</td><td><div class="dc"><span class="dname">دعاء</span><span class="dphone">0658729576</span><span class="daddr">Oran, Oran</span></div></td><td><div><div style="font-size:11.5px">بروص</div><div class="amt amt-p" style="margin-top:2px;font-size:12px">7 650 DA</div></div></td><td style="font-size:12px;font-weight:500">taki</td><td><div class="sv"><div class="svi"><span class="who">taki</span> hassi bonif</div><div class="svi" style="color:var(--danger)"><span class="who">taki</span> Ne répond pas<span class="ts"> 20/05 15:55</span></div></div></td><td><span class="age age-ok">Auj.</span></td><td><div class="ra"><button class="btn btn-sm btn-primary">Livré</button><button class="btn btn-sm warn" style="color:#a16207;border-color:#f59e0b">Susp.</button></div></td></tr>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#ECAXTR2605</span><span class="pill pill-b" style="font-size:9px;padding:1px 5px;margin-top:2px">Stop Desk</span><span class="tdate">13/05 12:51</span></div></td><td style="font-size:12px">deco dz</td><td><div class="dc"><span class="dname">Haichour narimene</span><span class="dphone">0770980620</span><span class="daddr">Oran, Oran</span></div></td><td><div><div style="font-size:11.5px">Câble WiFi 1x</div><div class="amt amt-p" style="margin-top:2px;font-size:12px">1 950 DA</div></div></td><td style="font-size:12px;color:var(--muted)">—</td><td><div class="sv"><div class="svi" style="color:var(--danger)">هاتف مغلق للمرة الثالثة<span class="ts"> 20/05 08:06</span></div><div class="svi">هاتف مغلق للمرة الثانية<span class="ts"> 19/05 08:35</span></div></div></td><td><span class="age age-d">4 jours</span></td><td><div class="ra"><button class="btn btn-sm btn-primary">Livré</button><button class="btn btn-sm btn-danger">Retour</button></div></td></tr>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#ECXOTI2605</span><span class="pill pill-b" style="font-size:9px;padding:1px 5px;margin-top:2px">Stop Desk</span><span class="tdate">18/05 15:38</span></div></td><td style="font-size:12px">brahim store 3131</td><td><div class="dc"><span class="dname">Aii</span><span class="dphone">0697577914</span><span class="daddr">Bir El Djir</span></div></td><td><div><div style="font-size:11.5px">Nettoyage</div><div class="amt amt-p" style="margin-top:2px;font-size:12px">1 300 DA</div></div></td><td style="font-size:12px;font-weight:500">STOP DESK</td><td><div class="sv"><div class="svi">تم اتفاق مع الزبون<span class="ts"> 20/05 16:10</span></div></div></td><td><span class="age age-w">2 jours</span></td><td><div class="ra"><button class="btn btn-sm btn-primary">Livré</button><button class="btn btn-sm">Susp.</button></div></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ════ RETOURS ════ -->
+<div class="view" id="v-retours">
+  <div class="pg-head">
+    <div><div class="pg-title">Retours</div><div class="pg-sub">1 896 colis · 485 prêts pour expéditeur · 1 240 en transit</div></div>
+    <div class="pg-actions">
+      <button class="btn">Valider réception</button>
+      <button class="btn btn-primary">Dispatcher sélection</button>
+    </div>
+  </div>
+  <div class="g5" style="margin-bottom:16px">
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#fee2e2"><svg viewBox="0 0 24 24" style="stroke:#dc2626"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="sc-num" style="color:#dc2626">24</div><div class="sc-lbl">Chez livreur</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#ffedd5"><svg viewBox="0 0 24 24" style="stroke:#c2410c"><rect x="1" y="3" width="15" height="13" rx="1"/></svg></div></div><div class="sc-num" style="color:#c2410c">121</div><div class="sc-lbl">Sous-traitant</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#fef9c3"><svg viewBox="0 0 24 24" style="stroke:#a16207"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg></div></div><div class="sc-num" style="color:#a16207">0</div><div class="sc-lbl">Entrepôt</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#fee2e2"><svg viewBox="0 0 24 24" style="stroke:#dc2626"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></div><span class="sc-delta" style="background:#fee2e2;color:#dc2626">Urgent</span></div><div class="sc-num" style="color:#dc2626">485</div><div class="sc-lbl">→ Expéditeur</div></div>
+    <div class="sc"><div class="sc-top"><div class="sc-ico" style="background:#e9f6f2"><svg viewBox="0 0 24 24" style="stroke:#08795f"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 012 2v7"/><line x1="6" y1="9" x2="6" y2="21"/></svg></div></div><div class="sc-num" style="color:#08795f">1 240</div><div class="sc-lbl">En transit exp.</div></div>
+  </div>
+  <div class="fbar">
+    <span class="fl">Étape</span>
+    <button class="fp on" onclick="setF(this)">Tous<span class="fc">1896</span></button>
+    <button class="fp" onclick="setF(this)">Chez livreur<span class="fc">24</span></button>
+    <button class="fp" onclick="setF(this)">Sous-traitant<span class="fc">121</span></button>
+    <button class="fp" onclick="setF(this)">Autre station<span class="fc">0</span></button>
+    <button class="fp" onclick="setF(this)">Entrepôt<span class="fc">0</span></button>
+    <button class="fp danger" onclick="setF(this)">→ Expéditeur<span class="fc">485</span></button>
+    <button class="fp" onclick="setF(this)">En transit exp.<span class="fc">1240</span></button>
+    <div class="fsep"></div>
+    <button class="fp" onclick="setF(this)">Suspendus<span class="fc">36</span></button>
+    <div class="fsep"></div>
+    <div class="fselect">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      <span>Tous les expéditeurs</span>
+      <svg class="fselect-arr" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      <select onchange="this.previousElementSibling.previousElementSibling.textContent=this.options[this.selectedIndex].text"><option>Tous les expéditeurs</option><option>boutique rihem</option><option>deco dz</option><option>Rb livraison</option><option>Elegancia Dz</option></select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ch-title">Colis — Retours</span><div class="ch-right"><button class="btn btn-sm">Exporter</button><button class="btn btn-primary btn-sm">Dispatcher sélection</button></div></div>
+    <div class="tw"><table>
+      <thead><tr><th><input type="checkbox" class="chk"></th><th>Tracking</th><th>Expéditeur</th><th>Destinataire</th><th>Produit</th><th>Étape actuelle</th><th>Suivi</th><th>Retourné le</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#EC8P5U2605</span><span class="pill pill-g" style="font-size:9px;padding:1px 5px;margin-top:2px">Livraison</span></div></td><td style="font-size:12px">boutique rihem</td><td><div class="dc"><span class="dname">madam</span><span class="dphone">0771872986</span><span class="daddr">Oran</span></div></td><td style="font-size:11.5px">bed3ya</td><td><span class="pill pill-r">→ Expéditeur</span></td><td><div class="sv"><div class="svi"><span class="who" style="color:var(--accent)">Rachid B.</span> مؤجل من طرف الزبون<span class="ts"> 19/05</span></div></div></td><td style="color:var(--muted);font-size:11px">20/05 13:19</td><td><div class="ra"><button class="btn btn-sm">Historique</button><button class="btn btn-sm btn-primary">Dispatcher</button></div></td></tr>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#ECAXTR2605</span><span class="pill pill-b" style="font-size:9px;padding:1px 5px;margin-top:2px">Stop Desk</span></div></td><td style="font-size:12px">deco dz</td><td><div class="dc"><span class="dname">Wail</span><span class="dphone">0797374786</span><span class="daddr">Constantine</span></div></td><td style="font-size:11.5px">CACHE WIFI SIMPLE</td><td><span class="pill pill-o">Sous-traitant</span></td><td><div class="sv"><div class="svi">تم الاتفاق مع الزبون<span class="ts"> 19/05</span></div></div></td><td style="color:var(--muted);font-size:11px">18/05</td><td><div class="ra"><button class="btn btn-sm">Historique</button><button class="btn btn-sm">À retourner</button></div></td></tr>
+        <tr><td><input type="checkbox" class="chk"></td><td><div class="tc"><span class="tid">#ECOFG0250</span><span class="pill pill-g" style="font-size:9px;padding:1px 5px;margin-top:2px">Livraison</span></div></td><td style="font-size:12px">Rb livraison</td><td><div class="dc"><span class="dname">Hamidi Mohammed</span><span class="dphone">0791116474</span><span class="daddr">Oran</span></div></td><td style="font-size:11.5px">اكسير</td><td><span class="pill pill-r">→ Expéditeur</span></td><td><div class="sv"><div class="svi" style="color:var(--danger)">Le colis a été volé — enquête policière</div></div></td><td style="color:var(--muted);font-size:11px">26/01</td><td><div class="ra"><button class="btn btn-sm">Historique</button><button class="btn btn-sm btn-primary">Dispatcher</button></div></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ════ LIVREUR ════ -->
+<div class="view" id="v-livreur">
+  <div class="pg-head">
+    <div><div class="pg-title">Livreur</div><div class="pg-sub">Un seul livreur au desk · retours · encaissement</div></div>
+    <div class="pg-actions"><button class="btn btn-primary" onclick="openScan('Retours livreur')">Scanner retours</button></div>
+  </div>
+
+  <div class="desk-layout">
+    <div class="card desk-list">
+      <div class="ch"><span class="ch-title">Livreur au comptoir</span></div>
+      <button class="desk-person on" onclick="selectLivreur(this,'Rachid Boukert','82 400')"><span>RB</span><div><b>Rachid Boukert</b><small>Retour desk actif</small></div></button>
+      <button class="desk-person" onclick="selectLivreur(this,'Maamer','64 200')"><span>MA</span><div><b>Maamer</b><small>À vérifier</small></div></button>
+      <button class="desk-person" onclick="selectLivreur(this,'Chadli','41 900')"><span>CH</span><div><b>Chadli</b><small>Encaissement partiel</small></div></button>
+      <button class="desk-person" onclick="selectLivreur(this,'Youcef Zeghoudi','97 300')"><span>YZ</span><div><b>Youcef Zeghoudi</b><small>Complet</small></div></button>
+    </div>
+
+    <div class="desk-main">
+      <div class="desk-hero card">
+        <div>
+          <div class="desk-kicker">Livreur sélectionné</div>
+          <div class="desk-name" id="desk-livreur-name">Rachid Boukert</div>
+          <div class="desk-note">Flux physique: vérifier retours, isoler échanges/manquants, recevoir l'argent.</div>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="openScan(document.getElementById('desk-livreur-name').textContent)">Scanner pour vérification</button>
+      </div>
+
+      <div class="g3 desk-stats">
+        <div class="sc"><div class="sc-num">54</div><div class="sc-lbl">Livrés</div></div>
+        <div class="sc"><div class="sc-num">9</div><div class="sc-lbl">Retours</div></div>
+        <div class="sc"><div class="sc-num"><span id="cash-expected">82 400</span> DA</div><div class="sc-lbl">Cash attendu</div></div>
+      </div>
+
+      <div class="split-2">
+        <div class="card">
+          <div class="ch"><span class="ch-title">Retours à vérifier</span><button class="btn btn-sm" onclick="openScan('Retours livreur')">Scanner</button></div>
+          <div class="tw"><table>
+            <thead><tr><th>Tracking</th><th>Type</th><th>État</th><th>Note</th></tr></thead>
+            <tbody>
+              <tr><td><span class="tid">#EC2045811</span></td><td><span class="pill pill-y">Échange</span></td><td>À isoler</td><td>Ancien produit absent</td></tr>
+              <tr><td><span class="tid">#EC2045798</span></td><td><span class="pill pill-r">Manquant</span></td><td>Bloqué</td><td>Déclarer dette si non retrouvé</td></tr>
+              <tr><td><span class="tid">#EC2045752</span></td><td><span class="pill pill-g">Retour</span></td><td>OK</td><td>Scanné au desk</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+
+        <div class="card action-card">
+          <div class="ch"><span class="ch-title">Recevoir l'argent</span></div>
+          <div class="money-row"><label>Montant reçu</label><input id="money-received" type="number" value="82400"></div>
+          <div class="money-row"><label>Mode</label><select><option>Complet</option><option>Partiel</option></select></div>
+          <button class="btn btn-primary btn-lg" onclick="receiveMoney()">Recevoir l'argent</button>
+          <div class="private-note">Paiement court: dette créée automatiquement, visible admin seulement.</div>
+          <div class="admin-private"><b>Admin privé</b><span>Dette active: Chadli · 11 500 DA · créée le 20/05</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ RÉCLAMATION ════ -->
+<div class="view" id="v-reclamation">
+  <div class="pg-head">
+    <div><div class="pg-title">Réclamation</div><div class="pg-sub">Sous-traitants · 0 tentatives · colis vieillissants</div></div>
+    <div class="pg-actions"><button class="btn">Exporter suivi</button><button class="btn btn-primary">Créer note</button></div>
+  </div>
+
+  <div class="alert-strip ops-alerts">
+    <div class="alert-card red"><div><div class="alert-num">17</div><div class="alert-lbl">0 tentatives</div></div></div>
+    <div class="alert-card yellow"><div><div class="alert-num">42</div><div class="alert-lbl">Colis âgés +72h</div></div></div>
+    <div class="alert-card blue"><div><div class="alert-num">6</div><div class="alert-lbl">Sous-traitants à relancer</div></div></div>
+  </div>
+
+  <div class="gcol-2-1">
+    <div class="card">
+      <div class="ch"><span class="ch-title">Monitoring sous-traitant</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Sous-traitant</th><th>Colis</th><th>0 tent.</th><th>Aging</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><b>Station Est</b></td><td>284</td><td><span class="pill pill-r">9</span></td><td><span class="age age-d">+96h</span></td><td><button class="btn btn-sm">Relancer</button></td></tr>
+          <tr><td><b>48h Tlemcen</b></td><td>163</td><td><span class="pill pill-y">5</span></td><td><span class="age age-w">+72h</span></td><td><button class="btn btn-sm">Relancer</button></td></tr>
+          <tr><td><b>Station Kabylie</b></td><td>91</td><td><span class="pill pill-g">0</span></td><td><span class="age age-ok">OK</span></td><td><button class="btn btn-sm">Voir</button></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ch-title">Notes par colis</span></div>
+      <div class="claim-note"><span class="tid">#EC2045888</span><p>Client injoignable. Demander preuve appel sous-traitant avant retour.</p><small>Suivi: Nassim · aujourd'hui 10:22</small></div>
+      <div class="claim-note"><span class="tid">#EC2045704</span><p>0 tentative depuis réception hub. Escalade automatique si non traité à 16:00.</p><small>Suivi: Admin · hier 18:40</small></div>
+      <div class="claim-note"><span class="tid">#EC2045511</span><p>Adresse confirmée par expéditeur, remettre en tournée demain.</p><small>Suivi: Sara · 19/05</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ FINANCE ════ -->
+<div class="view" id="v-finance">
+  <div class="pg-head">
+    <div><div class="pg-title">Finance</div><div class="pg-sub">Paiements · Livreurs · Dépenses</div></div>
+    <div class="pg-actions"><button class="btn">Exporter</button><button class="btn btn-primary">Préparer paiement</button></div>
+  </div>
+  <div style="display:flex;gap:12px;margin-bottom:16px">
+    <div style="background:var(--accent2);border:1px solid #b9e4cd;border-radius:var(--r);padding:14px 18px;flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--accent);margin-bottom:4px">Total livraisons</div><div style="font-size:20px;font-weight:800;font-family:var(--fhead);color:var(--accent)">2 470 750 DA</div></div>
+    <div style="background:var(--danger2);border:1px solid #fca5a5;border-radius:var(--r);padding:14px 18px;flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--danger);margin-bottom:4px">Total retenu</div><div style="font-size:20px;font-weight:800;font-family:var(--fhead);color:var(--danger)">364 300 DA</div></div>
+    <div style="background:var(--warn2);border:1px solid #fde68a;border-radius:var(--r);padding:14px 18px;flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#a16207;margin-bottom:4px">Total à payer</div><div style="font-size:20px;font-weight:800;font-family:var(--fhead);color:#a16207">2 106 450 DA</div></div>
+    <div style="background:#f0fdf4;border:1px solid #a7f3d0;border-radius:var(--r);padding:14px 18px;flex:1"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#15803d;margin-bottom:4px">Livreurs à payer</div><div style="font-size:20px;font-weight:800;font-family:var(--fhead);color:#15803d">276 750 DA</div></div>
+  </div>
+  <div class="fin-tabs">
+    <button class="fin-tab on" onclick="finTab(this,'fin-exp')">Expéditeurs</button>
+    <button class="fin-tab" onclick="finTab(this,'fin-trans')">En transit</button>
+    <button class="fin-tab" onclick="finTab(this,'fin-liv')">Livreurs</button>
+    <button class="fin-tab" onclick="finTab(this,'fin-dep')">Dépenses</button>
+  </div>
+  <div id="fin-exp">
+    <div class="fbar" style="margin-bottom:12px">
+      <div class="fselect"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Tous les expéditeurs</span><svg class="fselect-arr" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg><select onchange="this.previousElementSibling.previousElementSibling.textContent=this.options[this.selectedIndex].text"><option>Tous les expéditeurs</option><option>spiriluxe</option><option>ROSA COLLECTION</option><option>vietnam textile</option></select></div>
+    </div>
+    <div class="card"><div class="ch"><span class="ch-title">Caisse expéditeurs</span><div class="ch-right"><button class="btn btn-sm">Exporter</button></div></div>
+    <div class="tw"><table><thead><tr><th>Expéditeur</th><th>Total livraisons</th><th>Facturation</th><th>Retenu</th><th>À payer</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:600">spiriluxe</td><td class="amt amt-p">2 025 900</td><td><span class="pill pill-y">Retenu source</span></td><td class="mono" style="color:var(--muted)">326 000</td><td class="amt amt-p" style="font-size:14px">1 699 900</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Préparer</button></div></td></tr>
+      <tr><td style="font-weight:600">ROSA COLLECTION</td><td class="amt amt-p">193 600</td><td><span class="pill pill-y">Retenu source</span></td><td class="mono" style="color:var(--muted)">12 950</td><td class="amt amt-p" style="font-size:14px">180 650</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Préparer</button></div></td></tr>
+      <tr><td style="font-weight:600">vietnam textile</td><td class="amt amt-p">175 400</td><td><span class="pill pill-y">Retenu source</span></td><td class="mono" style="color:var(--muted)">16 450</td><td class="amt amt-p" style="font-size:14px">158 950</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Préparer</button></div></td></tr>
+      <tr><td style="font-weight:600">Tendence Chic</td><td class="amt amt-p">15 600</td><td><span class="pill pill-y">Retenu source</span></td><td class="mono" style="color:var(--muted)">600</td><td class="amt amt-p">15 000</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Préparer</button></div></td></tr>
+      <tr><td style="font-weight:600;color:var(--danger)">ZITEX</td><td class="amt amt-n">2 150</td><td><span class="pill pill-y">Retenu source</span></td><td class="mono" style="color:var(--muted)">2 850</td><td class="amt amt-n">−700</td><td><div class="ra"><button class="btn btn-sm btn-danger">Solde négatif</button></div></td></tr>
+    </tbody></table></div></div>
+  </div>
+  <div id="fin-trans" style="display:none">
+    <div class="card"><div class="ch"><span class="ch-title">Paiements en transit</span></div>
+    <div class="tw"><table><thead><tr><th>Réf.</th><th>Créé le</th><th>Expéditeur</th><th>Total livraisons</th><th>Retenu</th><th>À payer</th><th>Fait par</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">7726</td><td style="font-size:11px;color:var(--muted)">20/05 16:51</td><td style="font-weight:500">Elegance Ahlem</td><td class="amt amt-p">5 300</td><td class="mono" style="color:var(--muted)">800</td><td class="amt amt-p">4 500</td><td><span class="pill pill-b" style="font-size:10px">Admin</span></td><td><div class="ra"><button class="btn btn-sm">Insérer reçu</button><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Archiver</button></div></td></tr>
+      <tr><td class="mono">7725</td><td style="font-size:11px;color:var(--muted)">20/05 16:26</td><td style="font-weight:500">Jaguar</td><td class="amt amt-p">161 270</td><td class="mono" style="color:var(--muted)">19 350</td><td class="amt amt-p">141 920</td><td><span class="pill pill-b" style="font-size:10px">Admin</span></td><td><div class="ra"><button class="btn btn-sm">Insérer reçu</button><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Archiver</button></div></td></tr>
+    </tbody></table></div></div>
+  </div>
+  <div id="fin-liv" style="display:none">
+    <div class="card"><div class="ch"><span class="ch-title">Caisse livreurs</span></div>
+    <div class="tw"><table><thead><tr><th>Livreur</th><th>Rémunération</th><th>Actions</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:500">djawed karma</td><td class="amt amt-p">86 150 DA</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Valider paiement</button></div></td></tr>
+      <tr><td style="font-weight:500">Youcef Zeghoudi</td><td class="amt amt-p">75 500 DA</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Valider paiement</button></div></td></tr>
+      <tr><td style="font-weight:500">Maamer</td><td class="amt amt-p">58 300 DA</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Valider paiement</button></div></td></tr>
+      <tr><td style="font-weight:500">Chadli</td><td class="amt amt-p">37 500 DA</td><td><div class="ra"><button class="btn btn-sm">Décharge</button><button class="btn btn-sm btn-primary">Valider paiement</button></div></td></tr>
+    </tbody></table></div></div>
+  </div>
+  <div id="fin-dep" style="display:none">
+    <div class="g2">
+      <div class="card"><div class="ch"><span class="ch-title">Ajouter une dépense</span></div>
+        <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div><label style="font-size:11px;font-weight:600;color:var(--sub);display:block;margin-bottom:5px">Motif</label><select style="width:100%;border:1.5px solid var(--border);border-radius:var(--r2);padding:8px 10px;font-family:var(--fbody);font-size:13px;color:var(--text);background:var(--white);outline:none"><option>Salaire / commission</option><option>Carburant</option><option>Fournitures</option><option>Autre</option></select></div>
+            <div><label style="font-size:11px;font-weight:600;color:var(--sub);display:block;margin-bottom:5px">Date</label><input type="date" value="2026-05-21" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r2);padding:8px 10px;font-family:var(--fbody);font-size:13px;color:var(--text);outline:none"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div><label style="font-size:11px;font-weight:600;color:var(--sub);display:block;margin-bottom:5px">Montant (DZD)</label><input type="number" placeholder="0" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r2);padding:8px 10px;font-family:var(--fmono);font-size:13px;color:var(--text);outline:none"></div>
+            <div><label style="font-size:11px;font-weight:600;color:var(--sub);display:block;margin-bottom:5px">Observation</label><input type="text" placeholder="Note optionnelle…" style="width:100%;border:1.5px solid var(--border);border-radius:var(--r2);padding:8px 10px;font-family:var(--fbody);font-size:13px;color:var(--text);outline:none"></div>
+          </div>
+          <button class="btn btn-primary" style="align-self:flex-start"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter</button>
+        </div>
+      </div>
+      <div class="card"><div class="ch"><span class="ch-title">Historique dépenses du mois</span></div>
+        <div class="tw"><table><thead><tr><th>Motif</th><th>Montant</th><th>Fait par</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr><td style="font-size:12px">Salaire / commission</td><td class="amt amt-n">−4 750 DA</td><td style="font-size:11.5px">nassim 46</td><td style="font-size:11px;color:var(--muted)">20/05</td></tr>
+          <tr><td style="font-size:12px">Salaire / commission</td><td class="amt amt-n">−600 DA</td><td style="font-size:11.5px">mohamed 13</td><td style="font-size:11px;color:var(--muted)">20/05</td></tr>
+          <tr><td style="font-size:12px">Salaire / commission</td><td class="amt amt-n">−2 700 DA</td><td style="font-size:11.5px">nassim 46</td><td style="font-size:11px;color:var(--muted)">19/05</td></tr>
+          <tr><td style="font-size:12px">Salaire / commission</td><td class="amt amt-n">−3 200 DA</td><td style="font-size:11.5px">nassim 46</td><td style="font-size:11px;color:var(--muted)">18/05</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PARAMÈTRES ADMIN ════ -->
+<div class="view admin-only" id="v-parametres">
+  <div class="pg-head">
+    <div><div class="pg-title">Paramètres</div><div class="pg-sub">Super-admin uniquement · utilisateurs · permissions · dettes livreurs</div></div>
+    <div class="pg-actions"><span class="pill pill-r">Privé admin</span><button class="btn btn-primary">Inviter utilisateur</button></div>
+  </div>
+
+  <div class="settings-grid">
+    <div class="card">
+      <div class="ch"><span class="ch-title">Gestion des comptes</span></div>
+      <div class="admin-list">
+        <div class="admin-row"><div><b>Livreurs</b><span>8 actifs · desk flow</span></div><button class="btn btn-sm">Gérer</button></div>
+        <div class="admin-row"><div><b>Expéditeurs</b><span>124 comptes · paiements</span></div><button class="btn btn-sm">Gérer</button></div>
+        <div class="admin-row"><div><b>Admins</b><span>4 utilisateurs · accès sensible</span></div><button class="btn btn-sm">Gérer</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch"><span class="ch-title">Contrôle des rôles</span></div>
+      <div class="perm-grid">
+        <label><input type="checkbox" checked> Voir finance</label>
+        <label><input type="checkbox" checked> Modifier caisse</label>
+        <label><input type="checkbox"> Voir dettes livreurs</label>
+        <label><input type="checkbox" checked> Créer réclamation</label>
+        <label><input type="checkbox"> Gérer admins</label>
+        <label><input type="checkbox" checked> Dispatcher colis</label>
+      </div>
+    </div>
+
+    <div class="card debt-card">
+      <div class="ch"><span class="ch-title">Dettes livreurs · privé</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>Livreur</th><th>Montant</th><th>Origine</th><th>Statut</th></tr></thead>
+        <tbody>
+          <tr><td>Chadli</td><td class="amt amt-n">11 500 DA</td><td>Paiement court</td><td><span class="pill pill-r">Ouverte</span></td></tr>
+          <tr><td>Maamer</td><td class="amt amt-n">4 200 DA</td><td>Colis manquant</td><td><span class="pill pill-y">À vérifier</span></td></tr>
+          <tr><td>Rachid Boukert</td><td class="amt amt-p">0 DA</td><td>Complet</td><td><span class="pill pill-g">OK</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /body -->
+
+<!-- ══ CAISSE FAB ══ -->
+<button id="caisse-fab" onclick="toggleCaisse()">
+  <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+  Caisse
+</button>
+
+<!-- ══ CAISSE DRAWER ══ -->
+<div id="caisse-overlay" onclick="closeCaisse()"></div>
+<div id="caisse-drawer">
+  <div class="drawer-head">
+    <span class="drawer-title">Caisse · Bir Djir</span>
+    <button class="drawer-close" onclick="closeCaisse()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div class="caisse-hero">
+      <div class="ch-card ch-balance">
+        <div class="ch-card-lbl">Balance de la caisse</div>
+        <div class="ch-card-val">4 142 979 DZD</div>
+        <div class="ch-card-note">Mis à jour 20/05 à 17:05</div>
+      </div>
+      <div class="ch-card ch-owed">
+        <div class="ch-card-lbl">Expéditeurs à payer</div>
+        <div class="ch-card-val">4 382 933 DZD</div>
+        <div class="ch-card-note">Ce montant est dû aux expéditeurs — normal en fin de journée</div>
+      </div>
+      <div class="ch-card ch-reste">
+        <div class="ch-card-lbl">Reste après paiements</div>
+        <div class="ch-card-val">−239 954 DZD</div>
+        <div class="ch-card-note">Déficit à combler avant versement admin</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:20px;padding:10px">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Effectuer versement à l'admin
+    </button>
+    <div class="drawer-table card">
+      <div class="ch"><span class="ch-title" style="font-size:12px">Derniers mouvements</span></div>
+      <div class="tw"><table>
+        <thead><tr><th>#</th><th>Transaction</th><th>Montant</th><th>Date</th></tr></thead>
+        <tbody>
+          <tr><td class="mono" style="font-size:10px">14323</td><td style="font-size:11.5px">Encaissements livrés</td><td class="amt amt-p" style="font-size:12px">+8 590</td><td style="font-size:10px;color:var(--muted)">20/05 17:05</td></tr>
+          <tr><td class="mono" style="font-size:10px">14322</td><td style="font-size:11.5px">Encaissements livrés</td><td class="amt amt-p" style="font-size:12px">+1 515 760</td><td style="font-size:10px;color:var(--muted)">20/05 17:05</td></tr>
+          <tr><td class="mono" style="font-size:10px">14301</td><td style="font-size:11.5px">Versement → Admin</td><td class="amt amt-n" style="font-size:12px">−4 024 135</td><td style="font-size:10px;color:var(--muted)">19/05 22:35</td></tr>
+          <tr><td class="mono" style="font-size:10px">14266</td><td style="font-size:11.5px">Versement → Admin</td><td class="amt amt-n" style="font-size:12px">−3 862 335</td><td style="font-size:10px;color:var(--muted)">18/05 23:31</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div id="toasts"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
