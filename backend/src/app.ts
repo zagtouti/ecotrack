@@ -1,6 +1,10 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import { registerColisRoutes } from "./modules/colis/colis.routes.js";
 import { registerDashboardRoutes } from "./modules/dashboard/dashboard.routes.js";
+import { registerExpediteurRoutes } from "./modules/expediteurs/expediteurs.routes.js";
+import { registerLivreurRoutes } from "./modules/livreurs/livreurs.routes.js";
+import { registerUserRoutes } from "./modules/users/users.routes.js";
 
 export async function buildApp() {
   const app = Fastify({ logger: true });
@@ -22,6 +26,7 @@ export async function buildApp() {
       "roles",
       "stations",
       "colis",
+      "expediteurs",
       "scan",
       "dispatch",
       "livraison",
@@ -37,6 +42,10 @@ export async function buildApp() {
   }));
 
   await registerDashboardRoutes(app);
+  await registerUserRoutes(app);
+  await registerLivreurRoutes(app);
+  await registerExpediteurRoutes(app);
+  await registerColisRoutes(app);
 
   return app;
 }

@@ -1,0 +1,55 @@
+import type { Colis } from "./colis.types.js";
+
+export const colisMock: Colis[] = [
+  {
+    id: "colis-2045871",
+    trackingId: "EC2045871",
+    expediteurId: "exp-fatima",
+    expediteurName: "Fatima Hadj",
+    recipientName: "Ali Meziane",
+    recipientPhone: "0770101010",
+    wilaya: "Oran",
+    commune: "Bir Djir",
+    address: "Bir Djir, Oran",
+    product: "Vêtements",
+    codAmount: 2400,
+    quantity: 1,
+    fragile: false,
+    status: "in_delivery",
+    createdAt: "2026-05-20T13:10:00.000Z",
+    updatedAt: "2026-05-20T13:10:00.000Z"
+  },
+  {
+    id: "colis-2045866",
+    trackingId: "EC2045866",
+    expediteurId: "exp-fatima",
+    expediteurName: "Fatima Hadj",
+    recipientName: "Sara Khelifi",
+    recipientPhone: "0661940603",
+    wilaya: "Oran",
+    commune: "Oran Centre",
+    product: "Chaussures",
+    codAmount: 3200,
+    quantity: 1,
+    fragile: false,
+    status: "delivered",
+    createdAt: "2026-05-20T12:44:00.000Z",
+    updatedAt: "2026-05-20T18:30:00.000Z"
+  },
+  {
+    id: "colis-2045830",
+    trackingId: "EC2045830",
+    expediteurId: "exp-fatima",
+    expediteurName: "Fatima Hadj",
+    recipientName: "Wail Hammoudi",
+    recipientPhone: "0797374786",
+    wilaya: "Constantine",
+    product: "Accessoire",
+    codAmount: 0,
+    quantity: 1,
+    fragile: false,
+    status: "return",
+    createdAt: "2026-05-18T11:27:00.000Z",
+    updatedAt: "2026-05-19T11:27:00.000Z"
+  }
+];
